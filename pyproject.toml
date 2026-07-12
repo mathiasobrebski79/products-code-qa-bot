@@ -9,3 +9,10 @@ dependencies = [
     "torch>=2.13.0",
     "transformers>=5.13.0",
 ]
+
+[project.scripts]
+products-code-qa-bot = "products_code_qa_bot:main"
+
+[build-system]
+requires = ["uv_build>=0.11.25,<0.12.0"]
+build-backend = "uv_build"

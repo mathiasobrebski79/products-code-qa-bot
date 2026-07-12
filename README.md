@@ -1,3 +1,5 @@
+https://medium.com/@dr.shalinigambhir/how-i-built-a-question-answering-bot-in-python-step-by-step-guide-5463c2d15a55
+
 générer HF_TOKEN pour acc les téléchargements
 
 
