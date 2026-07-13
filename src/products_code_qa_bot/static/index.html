@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Bot meat products codes</title>
+<style>
+  body {
+    font-family: -apple-system, sans-serif;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 16px;
+    background: #f5f5f5;
+  }
+  h1 { font-size: 20px; }
+  #question {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .row { display: flex; gap: 8px; margin-top: 8px; }
+  button {
+    flex: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: white;
+    cursor: pointer;
+  }
+  #mic-btn.listening { background: #d9534f; }
+  #answer {
+    margin-top: 16px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    min-height: 40px;
+    font-size: 16px;
+  }
+  #status { color: #888; font-size: 13px; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<h1>QA Bot code produits</h1>
+
+<input type="text" id="question" placeholder="Pose ta question sur les codes ...">
+
+<div class="row">
+  <button id="ask-btn">Demander</button>
+  <button id="mic-btn">🎤 Parler</button>
+</div>
+
+<div id="status"></div>
+<div id="answer">La réponse s'affichera ici.</div>
+
+<script>
+const questionInput = document.getElementById("question");
+const answerDiv = document.getElementById("answer");
+const statusDiv = document.getElementById("status");
+const micBtn = document.getElementById("mic-btn");
+const askBtn = document.getElementById("ask-btn");
+
+async function askQuestion(question) {
+    if (!question) return;
+    statusDiv.textContent = "Recherche en cours...";
+    answerDiv.textContent = "...";
+    try {
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question: question })
+        });
+        const data = await response.json();
+        answerDiv.textContent = data.answer;
+        statusDiv.textContent = "";
+    } catch (err) {
+        answerDiv.textContent = "Erreur : impossible de contacter le serveur.";
+        statusDiv.textContent = "Vérifie que tu es bien sur le même WiFi.";
+    }
+}
+
+askBtn.addEventListener("click", () => askQuestion(questionInput.value));
+
+questionInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") askQuestion(questionInput.value);
+});
+
+// --- Reconnaissance vocale native du navigateur (aucune dépendance) ---
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = false;
+
+    micBtn.addEventListener("click", () => {
+        micBtn.classList.add("listening");
+        statusDiv.textContent = "Je t'écoute...";
+        recognition.start();
+    });
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        questionInput.value = transcript;
+        askQuestion(transcript);
+    };
+
+    recognition.onend = () => {
+        micBtn.classList.remove("listening");
+    };
+
+    recognition.onerror = (event) => {
+        micBtn.classList.remove("listening");
+        statusDiv.textContent = "Erreur micro : " + event.error;
+    };
+} else {
+    micBtn.disabled = true;
+    micBtn.textContent = "🎤 Non supporté";
+    statusDiv.textContent = "Ton navigateur ne supporte pas la reconnaissance vocale (essaie Chrome).";
+}
+</script>
+
+</body>
+</html>
