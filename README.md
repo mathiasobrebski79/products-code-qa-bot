@@ -21,3 +21,12 @@ from transformers import pipeline
 pipe = pipeline("feature-extraction", model="sentence-transformers/all-MiniLM-L6-v2")
 
 modèle stocké sous Windows : C:\Users\<toi>\.cache\huggingface\hub
+
+
+requrired for this project: 
+https://github.com/UB-Mannheim/tesseract/wiki
+don't forget to add the French langage componant 
+
+
+models saved in 
+C:\Users\Elitebook\.paddlex\official_models
